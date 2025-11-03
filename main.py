@@ -5,6 +5,7 @@ from financial_analyzer import calculate_financial_health
 from goal_planner import calculate_goal_feasibility, track_goal_progress
 from credit_advisor import analyze_credit_and_debt
 from sample_profiles import SAMPLE_PROFILES
+from investment_advisor import generate_investment_guidance
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'  # Needed for sessions
@@ -207,6 +208,32 @@ def credit():
         )
     
     return render_template("credit.html", year=year, credit_inputs=session.get('credit_inputs'))
+
+@app.route("/invest", methods=['GET'])
+def invest():
+    year = get_current_year()
+    budget_data = session.get('budget_data', {})
+    goals = session.get('goals', [])
+
+    monthly_income = budget_data.get('monthly_income', 0)
+    age_range = budget_data.get('age_range', '')
+    financial_health = budget_data.get('financial_health')
+
+    guidance = None
+    if monthly_income:
+        guidance = generate_investment_guidance(
+            monthly_income=monthly_income,
+            age_range=age_range,
+            financial_health=financial_health,
+            goals=goals,
+        )
+
+    return render_template(
+        "investment.html",
+        year=year,
+        budget_data=budget_data,
+        guidance=guidance,
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Investment Guidance</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+		<noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/noscript.css') }}" /></noscript>
+	</head>
+	<body class="is-preload">
+		<div id="wrapper">
+			{% include 'header.html' %}
+
+			<div id="main">
+				<div class="inner">
+					<header>
+						<h1>Investment Guidance</h1>
+						<p>Simple allocation split into low-risk and growth options based on your profile.</p>
+					</header>
+
+					<section>
+						<div class="box">
+							{% if guidance %}
+								<h2>Risk Profile: {{ guidance.risk_profile }}</h2>
+								<p>Suggested Split: <strong>{{ guidance.split.low_risk_pct }}% Low-Risk</strong> / <strong>{{ guidance.split.growth_pct }}% Growth</strong></p>
+
+								<div class="row">
+									<div class="col-6 col-12-medium">
+										<h3>Low-Risk Bucket</h3>
+										<ul>
+											{% for item in guidance.suggested_allocation.low_risk %}
+											<li>
+												<strong>{{ item.name }}</strong> — {{ item.percentage }}% of income
+												<div style="font-size: 0.95em; color: #666;">Amount: {{ item.display_amount }}</div>
+												<div style="font-size: 0.95em;">{{ item.notes }}</div>
+											</li>
+											{% endfor %}
+										</ul>
+									</div>
+									<div class="col-6 col-12-medium">
+										<h3>Growth Bucket</h3>
+										<ul>
+											{% for item in guidance.suggested_allocation.growth %}
+											<li>
+												<strong>{{ item.name }}</strong> — {{ item.percentage }}% of income
+												<div style="font-size: 0.95em; color: #666;">Amount: {{ item.display_amount }}</div>
+												<div style="font-size: 0.95em;">{{ item.notes }}</div>
+											</li>
+											{% endfor %}
+										</ul>
+									</div>
+								</div>
+
+								<h3>Notes</h3>
+								<ul>
+									{% for n in guidance.notes %}
+									<li>{{ n }}</li>
+									{% endfor %}
+								</ul>
+							{% else %}
+								<p>No profile data found. Please fill your details on the Home page to get personalized guidance.</p>
+								<ul class="actions">
+									<li><a href="{{ url_for('index') }}" class="button primary">Enter Your Details</a></li>
+								</ul>
+							{% endif %}
+						</div>
+					</section>
+
+					<section>
+						<div class="box">
+							<h3>Your Profile</h3>
+							<div class="row">
+								<div class="col-6 col-12-medium">
+									<ul>
+										<li><strong>Monthly Income:</strong> ₹{{ '%.0f'|format(budget_data.monthly_income or 0) }}</li>
+										<li><strong>Age Range:</strong> {{ budget_data.age_range or '-' }}</li>
+									</ul>
+								</div>
+								<div class="col-6 col-12-medium">
+									<ul>
+										<li><strong>Family Size:</strong> {{ budget_data.family_size or '-' }}</li>
+										<li><strong>Location:</strong> {{ budget_data.location or '-' }}</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</section>
+				</div>
+			</div>
+
+			{% include 'footer.html' %}
+		</div>
+
+		<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/browser.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/breakpoints.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/util.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+	</body>
+</html>
