@@ -79,6 +79,35 @@ def generic():
     # Retrieve data from session
     budget_data = session.get('budget_data', {})
     recommendations = session.get('recommendations', {})
+    
+    # Debug: Print the structure of budget_data
+    print("\n=== DEBUG: budget_data keys ===")
+    print(budget_data.keys())
+    if 'expenses' in budget_data:
+        print("Expenses type:", type(budget_data['expenses']))
+        if isinstance(budget_data['expenses'], dict):
+            print("Expense categories:", budget_data['expenses'].keys())
+    
+    # Calculate financial health if we have the necessary data
+    if 'monthly_income' in budget_data and 'expenses' in budget_data and budget_data['expenses']:
+        print("\n=== DEBUG: Calculating financial health ===")
+        try:
+            financial_health = calculate_financial_health(
+                float(budget_data['monthly_income']),
+                {k: float(v) for k, v in budget_data['expenses'].items() if v}
+            )
+            print("Financial health calculated:", financial_health)
+            budget_data['financial_health'] = financial_health
+        except Exception as e:
+            print(f"Error calculating financial health: {str(e)}")
+            budget_data['financial_health'] = None
+    else:
+        print("\n=== DEBUG: Missing data for financial health calculation ===")
+        print(f"Has monthly_income: {'monthly_income' in budget_data}")
+        print(f"Has expenses: 'expenses' in budget_data")
+        if 'expenses' in budget_data:
+            print(f"Expenses is empty: {not bool(budget_data['expenses'])}")
+        budget_data['financial_health'] = None
 
     # Prepare chart data for the pie chart
     chart_data = None

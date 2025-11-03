@@ -24,25 +24,33 @@
 							<!-- Financial Health Score -->
 							<section>
 								<div class="box">
-									<h2>Financial Health Score: {{ budget_data.financial_health.health_score }}/100</h2>
-									<p>Status: <strong>{{ budget_data.financial_health.status }}</strong></p>
-									
-									<h3>Key Metrics:</h3>
-									<ul>
-										<li>Savings Rate: {{ budget_data.financial_health.metrics.savings_rate }}%</li>
-										<li>Expense to Income Ratio: {{ budget_data.financial_health.metrics.expense_to_income_ratio }}%</li>
-										<li>Monthly Savings: ₹{{ "%.2f"|format(budget_data.financial_health.metrics.monthly_savings) }}</li>
-									</ul>
-									
-									<h3>Recommendations:</h3>
-									<ul>
-										{% for rec in budget_data.financial_health.recommendations %}
-										<li>
-											<strong>{{ rec.category }}</strong> (Priority: {{ rec.priority }})<br>
-											{{ rec.suggestion }}
-										</li>
-										{% endfor %}
-									</ul>
+									{% if budget_data.financial_health is defined and budget_data.financial_health is not none %}
+										<h2>Financial Health Score: {{ budget_data.financial_health.health_score }}/100</h2>
+										<p>Status: <strong>{{ budget_data.financial_health.status }}</strong></p>
+										
+										<h3>Key Metrics:</h3>
+										<ul>
+											<li>Savings Rate: {{ "%.1f"|format(budget_data.financial_health.metrics.savings_rate) }}%</li>
+											<li>Expense to Income Ratio: {{ "%.1f"|format(budget_data.financial_health.metrics.expense_to_income_ratio) }}%</li>
+											<li>Monthly Savings: ₹{{ "%.2f"|format(budget_data.financial_health.metrics.monthly_savings) }}</li>
+										</ul>
+										
+										<h3>Recommendations:</h3>
+										<ul>
+											{% for rec in budget_data.financial_health.recommendations %}
+											<li>
+												<strong>{{ rec.category }}</strong> (Priority: {{ rec.priority }})<br>
+												{{ rec.suggestion }}
+											</li>
+											{% endfor %}
+										</ul>
+									{% else %}
+										<h2>Financial Health Analysis</h2>
+										<div class="alert alert-info">
+											<p>We couldn't calculate your financial health score because we're missing some information.</p>
+											<p>Please make sure you've entered both your monthly income and expenses.</p>
+										</div>
+									{% endif %}
 								</div>
 							</section>
 
@@ -53,14 +61,32 @@
 									<div class="row">
 										<div class="col-6 col-12-medium">
 											<ul>
+												{% if 'monthly_income' in budget_data %}
 												<li><strong>Monthly Income:</strong> ₹{{ "%.0f"|format(budget_data.monthly_income) }}</li>
+												{% else %}
+												<li><strong>Monthly Income:</strong> Not provided</li>
+												{% endif %}
+												
+												{% if 'age_range' in budget_data %}
 												<li><strong>Age Range:</strong> {{ budget_data.age_range }}</li>
+												{% else %}
+												<li><strong>Age Range:</strong> Not provided</li>
+												{% endif %}
 											</ul>
 										</div>
 										<div class="col-6 col-12-medium">
 											<ul>
+												{% if 'family_size' in budget_data %}
 												<li><strong>Family Size:</strong> {{ budget_data.family_size }}</li>
+												{% else %}
+												<li><strong>Family Size:</strong> Not provided</li>
+												{% endif %}
+												
+												{% if 'location' in budget_data %}
 												<li><strong>Location:</strong> {{ budget_data.location }}</li>
+												{% else %}
+												<li><strong>Location:</strong> Not provided</li>
+												{% endif %}
 											</ul>
 										</div>
 									</div>
@@ -99,7 +125,7 @@
 											<tr>
 												<td><strong>Total</strong></td>
 												<td><strong>100%</strong></td>
-												<td><strong>₹{{ "%.0f"|format(budget_data.monthly_income) }}</strong></td>
+												<td><strong>{% if 'monthly_income' in budget_data %}₹{{ "%.0f"|format(budget_data.monthly_income) }}{% else %}N/A{% endif %}</strong></td>
 											</tr>
 										</tfoot>
 									</table>
