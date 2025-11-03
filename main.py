@@ -1,10 +1,18 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 import datetime
 from budget_calc import calculate_advanced_budget_recommendations
 from financial_analyzer import calculate_financial_health
+from goal_planner import calculate_goal_feasibility, track_goal_progress
+from sample_profiles import SAMPLE_PROFILES
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'  # Needed for sessions
+
+@app.route("/load_sample/<profile_id>")
+def load_sample(profile_id):
+    if profile_id in SAMPLE_PROFILES:
+        return jsonify(SAMPLE_PROFILES[profile_id])
+    return jsonify({"error": "Profile not found"}), 404
 
 
 def get_current_year():
@@ -89,6 +97,59 @@ def generic():
         chart_data=chart_data
     )
 
+
+@app.route("/goals", methods=['GET', 'POST'])
+def goals():
+    year = get_current_year()
+    
+    if request.method == 'POST':
+        # Get goal data
+        goal_data = {
+            'name': request.form.get('goal_name'),
+            'target_amount': float(request.form.get('target_amount')),
+            'current_amount': float(request.form.get('current_amount', 0)),
+            'target_date': datetime.datetime.strptime(request.form.get('target_date'), '%Y-%m-%d') if request.form.get('target_date') else None
+        }
+        
+        # Get financial data from session
+        budget_data = session.get('budget_data', {})
+        monthly_income = budget_data.get('monthly_income', 0)
+        expenses = budget_data.get('expenses', {})
+        monthly_expenses = sum(expenses.values()) if expenses else 0
+        
+        # Calculate goal feasibility
+        feasibility = calculate_goal_feasibility(
+            goal_data['target_amount'],
+            goal_data['current_amount'],
+            monthly_income,
+            monthly_expenses,
+            goal_data['target_date']
+        )
+        
+        # Calculate progress
+        progress = track_goal_progress(
+            goal_data['target_amount'],
+            goal_data['current_amount'],
+            datetime.datetime.now(),
+            goal_data['target_date']
+        )
+        
+        # Store goal in session
+        session['goals'] = session.get('goals', [])
+        goal_data.update({
+            'feasibility': feasibility,
+            'progress': progress
+        })
+        session['goals'].append(goal_data)
+        
+        return redirect(url_for('goals'))
+    
+    return render_template(
+        "goals.html",
+        year=year,
+        goals=session.get('goals', []),
+        budget_data=session.get('budget_data', {})
+    )
 
 @app.route("/elements")
 def elements():

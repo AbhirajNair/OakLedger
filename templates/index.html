@@ -41,12 +41,36 @@
 								<section>
 								<section>
 								  <h2>Create your ideal Budget:</h2>
-								  <form method="post" action="#">
+								  
+								  <!-- Sample Profiles -->
+								  <div class="box" style="margin-bottom: 2em;">
+									<h3>Try a Sample Profile:</h3>
+									<p>Click on any profile below to see how the analysis works with sample data:</p>
+									<div class="row">
+										<div class="col-4">
+											<a href="#" class="button sample-profile" data-profile="young_professional" style="width: 100%;">
+												<i class="fas fa-user-graduate"></i> Young Professional
+											</a>
+										</div>
+										<div class="col-4">
+											<a href="#" class="button sample-profile" data-profile="family_of_four" style="width: 100%;">
+												<i class="fas fa-users"></i> Family of Four
+											</a>
+										</div>
+										<div class="col-4">
+											<a href="#" class="button sample-profile" data-profile="retired_couple" style="width: 100%;">
+												<i class="fas fa-house-user"></i> Retired Couple
+											</a>
+										</div>
+									</div>
+								  </div>
+
+								  <form method="post" action="#" id="budgetForm">
 									<div class="row gtr-uniform">
-									  <div class="col-6 col-12-xsmall">
-										<label for="monthly_income">Monthly Income</label>
-										<input type="number" name="monthly_income" id="monthly_income" placeholder="Enter your monthly income" required min="0" step="0.01" />
-									  </div>
+																			<div class="col-6 col-12-xsmall">
+																				<label for="monthly_income">Monthly Income (INR ₹)</label>
+																				<input type="number" name="monthly_income" id="monthly_income" placeholder="Enter your monthly income (₹)" required min="0" step="0.01" />
+																			</div>
 									  <div class="col-6 col-12-xsmall">
 										<label for="age_range">Age Range</label>
 										<select name="age_range" id="age_range" required>
@@ -134,6 +158,47 @@
 			<script src="static/js/breakpoints.min.js"></script>
 			<script src="static/js/util.js"></script>
 			<script src="static/js/main.js"></script>
+			
+			<!-- Sample Profile Loading Script -->
+			<script>
+				document.addEventListener('DOMContentLoaded', function() {
+					const sampleButtons = document.querySelectorAll('.sample-profile');
+					
+					sampleButtons.forEach(button => {
+						button.addEventListener('click', function(e) {
+							e.preventDefault();
+							const profileId = this.dataset.profile;
+							
+							// Show loading state
+							this.classList.add('loading');
+							
+							// Fetch sample profile data
+							fetch(`/load_sample/${profileId}`)
+								.then(response => response.json())
+								.then(data => {
+									// Fill form with sample data
+									document.getElementById('monthly_income').value = data.monthly_income;
+									document.getElementById('age_range').value = data.age_range;
+									document.getElementById('family_size').value = data.family_size;
+									document.getElementById('location').value = data.location;
+									
+									// Fill expense fields
+									for (const [key, value] of Object.entries(data.expenses)) {
+										const field = document.getElementById(key);
+										if (field) field.value = value;
+									}
+									
+									// Remove loading state
+									this.classList.remove('loading');
+								})
+								.catch(error => {
+									console.error('Error loading sample profile:', error);
+									this.classList.remove('loading');
+								});
+						});
+					});
+				});
+			</script>
 
 	</body>
 </html>

@@ -1,0 +1,147 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Financial Goals - OakLedger</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" crossorigin="anonymous" />
+		<noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/noscript.css') }}" /></noscript>
+        <style>
+            .progress-bar {
+                height: 20px;
+                background-color: #f0f0f0;
+                border-radius: 10px;
+                overflow: hidden;
+                margin: 10px 0;
+            }
+            .progress-fill {
+                height: 100%;
+                background-color: #4CAF50;
+                transition: width 0.5s ease-in-out;
+            }
+            .milestone {
+                display: inline-block;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background-color: #f0f0f0;
+                margin: 0 10px;
+                text-align: center;
+                line-height: 30px;
+                font-weight: bold;
+            }
+            .milestone.achieved {
+                background-color: #4CAF50;
+                color: white;
+            }
+        </style>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+				{% include 'header.html' %}
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<header>
+								<h1>Financial Goals</h1>
+								<p>Set and track your financial goals</p>
+							</header>
+
+                            <!-- New Goal Form -->
+                            <section>
+                                <div class="box">
+                                    <h3>Create New Goal</h3>
+                                    <form method="post" action="{{ url_for('goals') }}">
+                                        <div class="row gtr-uniform">
+                                            <div class="col-6 col-12-xsmall">
+                                                <label for="goal_name">Goal Name</label>
+                                                <input type="text" name="goal_name" id="goal_name" placeholder="e.g., Emergency Fund" required />
+                                            </div>
+                                            <div class="col-6 col-12-xsmall">
+                                                <label for="target_amount">Target Amount (INR ₹)</label>
+                                                <input type="number" name="target_amount" id="target_amount" placeholder="Enter target amount (₹)" required min="0" step="0.01" />
+                                            </div>
+                                            <div class="col-6 col-12-xsmall">
+                                                <label for="current_amount">Current Amount Saved (INR ₹)</label>
+                                                <input type="number" name="current_amount" id="current_amount" placeholder="Enter current savings (₹)" required min="0" step="0.01" />
+                                            </div>
+                                            <div class="col-6 col-12-xsmall">
+                                                <label for="target_date">Target Date (Optional)</label>
+                                                <input type="date" name="target_date" id="target_date" />
+                                            </div>
+                                            <div class="col-12">
+                                                <ul class="actions">
+                                                    <li><input type="submit" value="Create Goal" class="primary" /></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </section>
+
+                            <!-- Existing Goals -->
+                            <section>
+                                {% if goals %}
+                                    {% for goal in goals %}
+                                        <div class="box">
+                                            <h3>{{ goal.name }}</h3>
+                                            <div class="row">
+                                                <div class="col-8">
+                                                    <!-- Progress Bar -->
+                                                    <div class="progress-bar">
+                                                        <div class="progress-fill" style="width: '{{ goal.progress.progress_percentage }}%';"></div>
+                                                    </div>
+                                                    <!-- Milestones -->
+                                                    <div class="milestones">
+                                                        {% for milestone in goal.progress.milestones %}
+                                                            <div class="milestone {% if milestone.achieved %}achieved{% endif %}">
+                                                                {{ milestone.percentage }}%
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <p>Target: ₹{{ "%.2f"|format(goal.target_amount) }}</p>
+                                                    <p>Current: ₹{{ "%.2f"|format(goal.current_amount) }}</p>
+                                                    <p>Progress: {{ "%.1f"|format(goal.progress.progress_percentage) }}%</p>
+                                                    {% if goal.target_date %}
+                                                        <p>Days Remaining: {{ goal.progress.days_remaining }}</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            
+                                            {% if goal.feasibility.recommendations %}
+                                                <div class="recommendations">
+                                                    <h4>Recommendations:</h4>
+                                                    <ul>
+                                                        {% for rec in goal.feasibility.recommendations %}
+                                                            <li>{{ rec }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="box">
+                                        <p>No goals set yet. Create your first goal above!</p>
+                                    </div>
+                                {% endif %}
+                            </section>
+						</div>
+					</div>
+
+				{% include 'footer.html' %}
+			</div>
+
+		<!-- Scripts -->
+			<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+			<script src="{{ url_for('static', filename='js/browser.min.js') }}"></script>
+			<script src="{{ url_for('static', filename='js/breakpoints.min.js') }}"></script>
+			<script src="{{ url_for('static', filename='js/util.js') }}"></script>
+			<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+	</body>
+</html>
