@@ -20,6 +20,30 @@
 					</header>
 
 					<section>
+						<div class="box" style="margin-bottom: 2em;">
+							<h3>Try a Sample Profile:</h3>
+							<p>Click to auto-fill credit fields with example data.</p>
+							<div class="row">
+								<div class="col-4">
+									<a href="#" class="button sample-profile" data-profile="young_professional" style="width: 100%;">
+										Young Professional
+									</a>
+								</div>
+								<div class="col-4">
+									<a href="#" class="button sample-profile" data-profile="family_of_four" style="width: 100%;">
+										Family of Four
+									</a>
+								</div>
+								<div class="col-4">
+									<a href="#" class="button sample-profile" data-profile="retired_couple" style="width: 100%;">
+										Retired Couple
+									</a>
+								</div>
+							</div>
+						</div>
+					</section>
+
+					<section>
 						<div class="box">
 							<h3>Enter Your Details</h3>
 							<form method="post" action="{{ url_for('credit') }}">
@@ -131,5 +155,28 @@
 		<script src="{{ url_for('static', filename='js/breakpoints.min.js') }}"></script>
 		<script src="{{ url_for('static', filename='js/util.js') }}"></script>
 		<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				const sampleButtons = document.querySelectorAll('.sample-profile');
+				sampleButtons.forEach(btn => {
+					btn.addEventListener('click', function(e) {
+						e.preventDefault();
+						const profileId = this.dataset.profile;
+						fetch(`/load_sample/${profileId}`)
+							.then(r => r.json())
+							.then(data => {
+								if (!data.credit) return;
+								document.getElementById('total_debt').value = data.credit.total_debt || 0;
+								document.getElementById('monthly_debt_payment').value = data.credit.monthly_debt_payment || 0;
+								document.getElementById('avg_interest_rate').value = data.credit.avg_interest_rate || 0;
+								document.getElementById('credit_utilization_pct').value = data.credit.credit_utilization_pct || 0;
+								document.getElementById('on_time_payment_pct').value = data.credit.on_time_payment_pct || 0;
+								document.getElementById('open_credit_lines').value = data.credit.open_credit_lines || 0;
+								document.getElementById('hard_inquiries_12m').value = data.credit.hard_inquiries_12m || 0;
+							});
+					});
+				});
+			});
+		</script>
 	</body>
 </html>

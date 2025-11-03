@@ -50,6 +50,25 @@
 								<p>Set and track your financial goals</p>
 							</header>
 
+							<!-- Sample Profiles for Goals -->
+							<section>
+								<div class="box" style="margin-bottom: 2em;">
+									<h3>Try a Sample Profile:</h3>
+									<p>Click to auto-fill the goal form with example data.</p>
+									<div class="row">
+										<div class="col-4">
+											<a href="#" class="button sample-profile" data-profile="young_professional" style="width: 100%;">Young Professional</a>
+										</div>
+										<div class="col-4">
+											<a href="#" class="button sample-profile" data-profile="family_of_four" style="width: 100%;">Family of Four</a>
+										</div>
+										<div class="col-4">
+											<a href="#" class="button sample-profile" data-profile="retired_couple" style="width: 100%;">Retired Couple</a>
+										</div>
+									</div>
+								</div>
+							</section>
+
                             <!-- New Goal Form -->
                             <section>
                                 <div class="box">
@@ -151,5 +170,27 @@
 			<script src="{{ url_for('static', filename='js/breakpoints.min.js') }}"></script>
 			<script src="{{ url_for('static', filename='js/util.js') }}"></script>
 			<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+			<script>
+				document.addEventListener('DOMContentLoaded', function() {
+					const sampleButtons = document.querySelectorAll('.sample-profile');
+					sampleButtons.forEach(btn => {
+						btn.addEventListener('click', function(e) {
+							e.preventDefault();
+							const profileId = this.dataset.profile;
+							fetch(`/load_sample/${profileId}`)
+								.then(r => r.json())
+								.then(data => {
+									if (!data.goal_preset) return;
+									document.getElementById('goal_name').value = data.goal_preset.goal_name || '';
+									document.getElementById('target_amount').value = data.goal_preset.target_amount || '';
+									document.getElementById('current_amount').value = data.goal_preset.current_amount || '';
+									if (data.goal_preset.target_date) {
+										document.getElementById('target_date').value = data.goal_preset.target_date;
+									}
+								});
+						});
+					});
+				});
+			</script>
 	</body>
 </html>
