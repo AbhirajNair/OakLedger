@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error - OakLedger</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/noscript.css') }}" />
+    <style>
+        .error-container {
+            text-align: center;
+            padding: 100px 20px;
+        }
+        .error-code {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #f44336;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+        .home-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            margin: 10px;
+        }
+        .home-button:hover {
+            background-color: #45a049;
+        }
+        .error-details {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            font-family: monospace;
+            text-align: left;
+            max-width: 800px;
+            margin: 30px auto;
+            display: none;
+        }
+        .show-details {
+            background-color: #f44336;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body class="is-preload">
+    <!-- Wrapper -->
+    <div id="wrapper">
+        <!-- Header -->
+        {% include 'header.html' %}
+
+        <!-- Main -->
+        <div id="main">
+            <div class="inner">
+                <div class="error-container">
+                    <div class="error-code">500</div>
+                    <h1>Server Error</h1>
+                    <p class="error-message">Oops! Something went wrong on our end. We're working to fix it.</p>
+                    <a href="{{ url_for('index') }}" class="home-button">Return to Home</a>
+                    <button id="showDetails" class="home-button show-details">Show Details</button>
+                    
+                    <div id="errorDetails" class="error-details">
+                        <p><strong>Error:</strong> {{ error.name if error else 'Unknown error' }}</p>
+                        <p><strong>Description:</strong> {{ error.description if error else 'An unexpected error occurred' }}</p>
+                        {% if error %}
+                        <pre>{{ error }}</pre>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        {% include 'footer.html' %}
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $('#showDetails').click(function() {
+                $('#errorDetails').slideToggle();
+                $(this).text(function(i, text) {
+                    return text === "Show Details" ? "Hide Details" : "Show Details";
+                });
+            });
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/browser.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/breakpoints.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/util.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

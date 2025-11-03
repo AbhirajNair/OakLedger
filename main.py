@@ -351,9 +351,9 @@ def internal_error(error):
     return render_template('500.html'), 500
 
 # This is required for Vercel
-def app_handler(environ, start_response):
-    return app(environ, start_response)
+app = app  # This is required for Vercel to detect the Flask app
 
+# This is the entry point for Vercel
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
