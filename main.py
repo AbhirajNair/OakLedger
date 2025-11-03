@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify,Response
 import datetime
 from budget_calc import calculate_advanced_budget_recommendations
 from financial_analyzer import calculate_financial_health
@@ -6,6 +6,8 @@ from goal_planner import calculate_goal_feasibility, track_goal_progress
 from credit_advisor import analyze_credit_and_debt
 from sample_profiles import SAMPLE_PROFILES
 from investment_advisor import generate_investment_guidance
+import csv
+import io
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'  # Needed for sessions
