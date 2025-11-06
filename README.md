@@ -1,7 +1,6 @@
 <div align="center">
 
-# 🌳 OakLedger
-
+<img src="OakLedger_Logo.png" alt="OakLedger"> 
 </div>
 
 <div align="center">
