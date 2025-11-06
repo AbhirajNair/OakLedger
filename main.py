@@ -217,6 +217,12 @@ def elements():
     year = get_current_year()
     return render_template("elements.html", year=year)
 
+@app.route("/visualizations")
+def visualizations():
+    """Render the visualizations page."""
+    year = get_current_year()
+    return render_template('visualizations.html', year=year)
+
 @app.route("/credit", methods=['GET', 'POST'])
 def credit():
     year = get_current_year()

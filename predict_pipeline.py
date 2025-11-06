@@ -4,6 +4,16 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
 import os
+from sklearn.metrics import classification_report, mean_squared_error, r2_score
+from visualizations import (
+    create_financial_health_pie_chart,
+    create_income_savings_histograms,
+    create_correlation_heatmap,
+    create_confusion_matrix_heatmap,
+    create_actual_vs_predicted_plot,
+    create_metrics_bar_chart,
+    create_sample_predictions_table
+)
 
 # -----------------------------
 # 1. Load models
@@ -127,10 +137,76 @@ for user in users:
 print("✅ Individual user plots saved.\n")
 
 # -----------------------------
-# 10. Combined Dashboard Overview
+# 10. Model Evaluation
 # -----------------------------
-print("📊 Generating combined dashboard overview...")
+print("📈 Evaluating model performance...")
 
+# Add true labels if available (replace with your actual true labels if available)
+if 'financial_health' in df.columns:
+    # Generate classification report and convert to dict
+    report = classification_report(
+        df['financial_health'],
+        df['predicted_financial_health'],
+        target_names=label_encoder.classes_,
+        output_dict=True
+    )
+    
+    # Print classification report
+    print("\n=== Classification Report ===")
+    print(classification_report(
+        df['financial_health'],
+        df['predicted_financial_health'],
+        target_names=label_encoder.classes_
+    ))
+    
+    # Create metrics bar chart
+    create_metrics_bar_chart(report, save_path=plot_dir)
+    
+    # Create sample predictions table
+    create_sample_predictions_table(df, n_samples=10, save_path=plot_dir)
+    
+    # Confusion Matrix
+    create_confusion_matrix_heatmap(
+        y_true=df['financial_health'],
+        y_pred=df['predicted_financial_health'],
+        classes=label_encoder.classes_,
+        save_path=plot_dir
+    )
+
+# Regression Metrics
+if 'total_expenses' in df.columns:
+    print("\n=== Regression Metrics ===")
+    mse = mean_squared_error(df['total_expenses'], df['predicted_expense'])
+    r2 = r2_score(df['total_expenses'], df['predicted_expense'])
+    print(f"Mean Squared Error: {mse:.2f}")
+    print(f"R² Score: {r2:.2f}")
+    
+    # Actual vs Predicted Plot
+    create_actual_vs_predicted_plot(
+        y_true=df['total_expenses'],
+        y_pred=df['predicted_expense'],
+        save_path=plot_dir
+    )
+
+# -----------------------------
+# 11. Generate Visualizations
+# -----------------------------
+print("📊 Generating visualizations...")
+
+# 1. Financial Health Pie Chart
+if 'financial_health' in df.columns:
+    create_financial_health_pie_chart(df, save_path=plot_dir)
+
+# 2. Income and Savings Histograms
+if all(col in df.columns for col in ['total_income', 'savings_ratio']):
+    create_income_savings_histograms(df, save_path=plot_dir)
+
+# 3. Correlation Heatmap
+numeric_cols = df.select_dtypes(include=[np.number]).columns
+if len(numeric_cols) > 0:
+    create_correlation_heatmap(df, save_path=plot_dir)
+
+# 4. Combined Savings Overview
 plt.figure(figsize=(12, 6))
 for user in users:
     user_df = df[df['user_id'] == user].sort_values('month')
@@ -145,16 +221,6 @@ plt.grid(alpha=0.3)
 plt.legend(["Actual Savings", "Predicted Expense"], loc="upper left")
 plt.tight_layout()
 plt.savefig(f"{plot_dir}/combined_savings_overview.png")
-plt.close()
-
-# Distribution of predicted financial health
-plt.figure(figsize=(8, 5))
-sns.countplot(data=df, x='predicted_financial_health', palette=['green', 'orange', 'red'])
-plt.title("Distribution of Predicted Financial Health Across Users")
-plt.xlabel("Financial Health Category")
-plt.ylabel("Number of Records")
-plt.tight_layout()
-plt.savefig(f"{plot_dir}/financial_health_distribution.png")
 plt.close()
 
 print(f"✅ Combined dashboard saved in '{plot_dir}' folder.\n")

@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>OakLedger - Visualizations</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" />
+		<noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/noscript.css') }}" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+				{% include 'header.html' %}
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+							<header style="text-align: center; margin-bottom: 2em;">
+								<h1>Financial Analysis Visualizations</h1>
+								<p>Interactive insights into your financial health and predictions</p>
+							</header>
+
+							<!-- Financial Health Distribution -->
+							<section>
+								<h2>Financial Health Distribution</h2>
+								<div class="box">
+									<img src="{{ url_for('static', filename='images/plots/financial_health_pie.png') }}" alt="Financial Health Distribution" style="width: 100%; max-width: 800px; height: auto; display: block; margin: 0 auto;">
+								</div>
+							</section>
+
+							<!-- Income & Savings Analysis -->
+							<section>
+								<h2>Income & Savings Analysis</h2>
+								<div class="box">
+									<img src="{{ url_for('static', filename='images/plots/income_savings_histograms.png') }}" alt="Income and Savings Histograms" style="width: 100%; max-width: 1000px; height: auto; display: block; margin: 0 auto;">
+								</div>
+							</section>
+
+							<!-- Correlation Heatmap -->
+							<section>
+								<h2>Feature Correlations</h2>
+								<div class="box">
+									<img src="{{ url_for('static', filename='images/plots/correlation_heatmap.png') }}" alt="Correlation Heatmap" style="width: 100%; max-width: 1000px; height: auto; display: block; margin: 0 auto;">
+								</div>
+							</section>
+
+							<!-- Model Performance -->
+							<section>
+								<h2>Model Performance</h2>
+								<div class="box">
+									<h3>Classification Metrics</h3>
+									<img src="{{ url_for('static', filename='images/plots/classification_metrics.png') }}" alt="Classification Metrics" style="width: 100%; max-width: 1000px; height: auto; display: block; margin: 0 auto 2em auto;">
+									
+									<h3>Confusion Matrix</h3>
+									<img src="{{ url_for('static', filename='images/plots/confusion_matrix.png') }}" alt="Confusion Matrix" style="width: 100%; max-width: 800px; height: auto; display: block; margin: 0 auto 2em auto;">
+									
+									<h3>Actual vs Predicted Values</h3>
+									<img src="{{ url_for('static', filename='images/plots/actual_vs_predicted.png') }}" alt="Actual vs Predicted Values" style="width: 100%; max-width: 800px; height: auto; display: block; margin: 0 auto;">
+								</div>
+							</section>
+
+							<!-- Sample Predictions -->
+							<section>
+								<h2>Sample Predictions</h2>
+								<div class="box">
+									<img src="{{ url_for('static', filename='images/plots/sample_predictions_table.png') }}" alt="Sample Predictions" style="width: 100%; max-width: 1200px; height: auto; display: block; margin: 0 auto;">
+								</div>
+							</section>
+
+						</div>
+					</div>
+
+				{% include 'footer.html' %}
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+			<script src="{{ url_for('static', filename='js/browser.min.js') }}"></script>
+			<script src="{{ url_for('static', filename='js/breakpoints.min.js') }}"></script>
+			<script src="{{ url_for('static', filename='js/util.js') }}"></script>
+			<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+	</body>
+</html>
