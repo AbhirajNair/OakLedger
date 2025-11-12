@@ -1,6 +1,10 @@
 import os
+import json
+import joblib
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, Response
-import datetime
 from budget_calc import calculate_advanced_budget_recommendations
 from financial_analyzer import calculate_financial_health
 from goal_planner import calculate_goal_feasibility, track_goal_progress
@@ -29,7 +33,7 @@ app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
-    PERMANENT_SESSION_LIFETIME=datetime.timedelta(hours=1)
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=1)
 )
 
 # Security headers middleware
@@ -50,7 +54,7 @@ def load_sample(profile_id):
 
 
 def get_current_year():
-    return datetime.datetime.now().year
+    return datetime.now().year
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -161,8 +165,8 @@ def update_goal():
             'target_amount': float(request.form.get('target_amount', 0)),
             'current_amount': float(request.form.get('current_amount', 0)),
             'time_frame': int(request.form.get('time_frame', 12)),
-            'created_at': session['goals'][goal_index].get('created_at', datetime.datetime.now().isoformat()),
-            'target_date': (datetime.datetime.now() + datetime.timedelta(days=int(request.form.get('time_frame', 12))*30)).isoformat()
+            'created_at': session['goals'][goal_index].get('created_at', datetime.now().isoformat()),
+            'target_date': (datetime.now() + timedelta(days=int(request.form.get('time_frame', 12))*30)).isoformat()
         }
         session.modified = True
         
@@ -193,7 +197,7 @@ def goals():
         monthly_savings = float(budget_data.get('financial_health', {}).get('metrics', {}).get('monthly_savings', 1000))
         
         # Calculate target date based on time frame
-        target_date = datetime.datetime.now() + datetime.timedelta(days=time_frame*30)
+        target_date = datetime.now() + timedelta(days=time_frame*30)
         
         # Calculate total monthly expenses from budget data
         expenses = budget_data.get('expenses', {})
@@ -405,16 +409,92 @@ def investment_advisor():
 def predict():
     try:
         data = request.get_json()
-        result = make_prediction(data)
+        prediction = make_prediction(data)
         return jsonify({
             'status': 'success',
-            'data': result
+            'prediction': prediction,
+            'model': 'random_forest'  # Indicate which model was used
         })
     except Exception as e:
         return jsonify({
             'status': 'error',
             'message': str(e)
         }), 400
+
+# XGBoost Prediction Endpoint
+@app.route('/api/predict/xgboost', methods=['POST'])
+def predict_xgboost():
+    try:
+        data = request.get_json()
+        
+        # Load models
+        xgb_reg = joblib.load("models/xgboost/xgboost_regressor.pkl")
+        xgb_clf = joblib.load("models/xgboost/xgboost_classifier.pkl")
+        label_encoder = joblib.load("models/label_encoder.pkl")
+        
+        # Prepare input data
+        input_df = pd.DataFrame([{
+            'age': int(data.get('age', 0)),
+            'family_size': int(data.get('family_size', 1)),
+            'total_income': float(data.get('total_income', 0)),
+            'total_expenses': float(data.get('total_expenses', 0)),
+            'savings': float(data.get('savings', 0)),
+            'debt_ratio': float(data.get('debt_ratio', 0)),
+            'expense_ratio': float(data.get('expense_ratio', 0)),
+            'savings_ratio': float(data.get('savings_ratio', 0)),
+            'credit_score': int(data.get('credit_score', 0))
+        }])
+        
+        # Make predictions
+        expense_pred = xgb_reg.predict(input_df[['age', 'family_size', 'total_income', 'debt_ratio', 
+                                              'expense_ratio', 'savings_ratio', 'credit_score']])[0]
+        
+        health_pred = xgb_clf.predict(input_df[['total_income', 'total_expenses', 'savings', 
+                                             'savings_ratio', 'debt_ratio', 'expense_ratio']])[0]
+        
+        health_label = label_encoder.inverse_transform([health_pred])[0]
+        
+        return jsonify({
+            'status': 'success',
+            'prediction': {
+                'predicted_expense': float(expense_pred),
+                'financial_health': health_label
+            },
+            'model': 'xgboost'
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 400
+
+# Model Training Endpoint (kept for potential future use)
+@app.route('/api/models/train/xgboost', methods=['POST'])
+def train_xgboost():
+    try:
+        from xgboost_trainer import train_xgboost_models
+        metrics = train_xgboost_models()
+        
+        # Save metrics for prediction use
+        joblib.dump({
+            'mse': metrics['regression']['mse'],
+            'r2': metrics['regression']['r2'],
+            'accuracy': metrics['classification']['accuracy'],
+            'last_trained': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }, "models/xgboost/metrics.pkl")
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'XGBoost models trained successfully',
+            'metrics': metrics
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
 
 # Error handlers
 @app.errorhandler(404)
