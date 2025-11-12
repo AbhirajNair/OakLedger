@@ -258,45 +258,47 @@ def visualizations():
 @app.route("/credit", methods=['GET', 'POST'])
 def credit():
     year = get_current_year()
+    credit_inputs = None
+    analysis = None
     
     if request.method == 'POST':
-        credit_score = int(request.form.get('credit_score', 0))
-        total_debt = float(request.form.get('total_debt', 0))
-        credit_utilization = float(request.form.get('credit_utilization', 0))
-        payment_history = request.form.get('payment_history', 'good')
-        
-        # Get income from session or use a default
-        monthly_income = float(session.get('budget_data', {}).get('monthly_income', 5000))
-        
-        # Analyze credit and debt
-        # Convert payment_history to a percentage (assuming 'good' = 100%, 'average' = 80%, etc.)
-        on_time_payment_pct = 100 if payment_history == 'good' else 80
-        
-        # Set default values for required parameters not in the form
-        avg_interest_rate = 15.0  # Default average interest rate
-        open_credit_lines = 3      # Default number of open credit lines
-        hard_inquiries_12m = 1     # Default number of hard inquiries
-        
-        credit_analysis = analyze_credit_and_debt(
-            total_debt=total_debt,
-            monthly_debt_payment=monthly_income * 0.1,  # 10% of monthly income as estimated payment
-            avg_interest_rate=avg_interest_rate,
-            credit_utilization_pct=credit_utilization,
-            on_time_payment_pct=on_time_payment_pct,
-            open_credit_lines=open_credit_lines,
-            hard_inquiries_12m=hard_inquiries_12m
-        )
-        
-        # Store in session
-        session['credit_analysis'] = credit_analysis
-        
-        return render_template("credit.html", 
-                             year=year,
-                             credit_analysis=credit_analysis,
-                             form_data=request.form)
+        try:
+            # Get form data with defaults
+            credit_inputs = {
+                'total_debt': float(request.form.get('total_debt', 0)),
+                'monthly_debt_payment': float(request.form.get('monthly_debt_payment', 0)),
+                'avg_interest_rate': float(request.form.get('avg_interest_rate', 15.0)),
+                'credit_utilization_pct': float(request.form.get('credit_utilization_pct', 30.0)),
+                'on_time_payment_pct': float(request.form.get('on_time_payment_pct', 100)),
+                'open_credit_lines': int(request.form.get('open_credit_lines', 3)),
+                'hard_inquiries_12m': int(request.form.get('hard_inquiries_12m', 0))
+            }
+            
+            # Call the credit advisor
+            analysis = analyze_credit_and_debt(
+                total_debt=credit_inputs['total_debt'],
+                monthly_debt_payment=credit_inputs['monthly_debt_payment'],
+                avg_interest_rate=credit_inputs['avg_interest_rate'],
+                credit_utilization_pct=credit_inputs['credit_utilization_pct'],
+                on_time_payment_pct=credit_inputs['on_time_payment_pct'],
+                open_credit_lines=credit_inputs['open_credit_lines'],
+                hard_inquiries_12m=credit_inputs['hard_inquiries_12m']
+            )
+            
+            # Store in session for future reference
+            session['credit_analysis'] = analysis
+            
+        except Exception as e:
+            from flask import flash
+            flash(f"Error processing your request: {str(e)}", "error")
     
-    # For GET requests, show the form
-    return render_template("credit.html", year=year)
+    # For GET or if there was an error, show the form with any previous inputs
+    return render_template(
+        "credit.html", 
+        year=year, 
+        credit_inputs=credit_inputs or {},
+        analysis=analysis
+    )
 
 
 @app.route("/download-csv")
