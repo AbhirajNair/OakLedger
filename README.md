@@ -1,48 +1,49 @@
-<div align="center">
+# OakLedger
 
-<img src="OakLedger_Logo.png" alt="OakLedger"> 
-</div>
-
-<div align="center">
+![OakLedger Logo](OakLedger_Logo.png)
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white&style=for-the-badge)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-2.x-000000?logo=flask&logoColor=white&style=for-the-badge)](https://flask.palletsprojects.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-### Your Personal Finance Command Center  
-#### Budgeting • Financial Health • Goals • Credit/Debt • Investment Guidance
+## Your Personal Finance Command Center
 
-<img src="https://img.shields.io/badge/Status-Active-success?style=flat-square" alt="Project Status"> 
-<img src="https://img.shields.io/badge/Version-1.0.0-blue?style=flat-square" alt="Version"> 
-<img src="https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=flat-square" alt="Contributions Welcome">
+### Budgeting • Financial Health • Goals • Credit/Debt • Investment Guidance
 
-</div>
+![Project Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.0.0-blue?style=flat-square)
+![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=flat-square)
 
 ---
 
 ## 🚀 Features
 
 ### 📊 Smart Budgeting
+
 - Personalized budget recommendations based on Indian cost of living
 - Visual spending breakdown with interactive charts
 - Age and family-size aware financial planning
 
 ### 💪 Financial Health Score
+
 - Comprehensive financial health assessment
 - Actionable insights and improvement recommendations
 - Progress tracking over time
 
 ### 🎯 Goals & Planning
+
 - Set and track financial goals
 - Automated progress calculations
 - Visual goal tracking with milestones
 
 ### 💳 Credit & Debt Management
+
 - Credit score simulator
 - Debt repayment strategies
 - Credit utilization optimization
 
 ### 📈 Investment Guidance
+
 - Personalized investment portfolio suggestions
 - Risk assessment based on age and goals
 - India-specific investment instruments
@@ -52,16 +53,19 @@
 ## 🛠️ Tech Stack
 
 ### Backend
+
 - **Python 3.11+**
 - **Flask** - Web framework
 - **Jinja2** - Templating engine
 
 ### Frontend
+
 - **Chart.js** - Interactive data visualization
 - **HTML5UP Phantom** - Responsive theme
 - **Custom CSS** - Dark mode styling
 
 ### Development Tools
+
 - **Git** - Version control
 - **GitHub** - Code hosting
 - **PEP 8** - Code style
@@ -71,13 +75,15 @@
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Python 3.11+
 - pip (Python package manager)
 
 ### Installation
+
 ```bash
 # Clone the repository
-git clone [https://github.com/yourusername/OakLedger.git](https://github.com/yourusername/OakLedger.git)
+git clone https://github.com/yourusername/OakLedger.git
 cd OakLedger
 
 # Create and activate virtual environment
@@ -89,11 +95,13 @@ pip install -r requirements.txt
 
 # Run the application
 python main.py
+```
 
-```
 ---
+
 ## 📂 Project Structure
-```
+
+```text
 OakLedger/
 ├── static/                 # Static files
 │   ├── assets/             # Images and icons
@@ -136,12 +144,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-<div align="center">
 Made with ❤️ by Abhinav Nair, Achintya Manoj and Achintya Chaturvedi
-</div>
 
-<div align="center" style="margin-top: 5px;">
-  <a href="https://github.com/abhirajnair" target="_blank">Abhinav Nair</a> • 
-  <a href="https://github.com/PrisonMike123" target="_blank">Achintya Manoj</a> •
-  <a href="https://github.com/AchintyaisGOAT" target="_blank">Achintya Chaturvedi</a>
-</div>
+---
+
+- [Abhinav Nair](https://github.com/abhirajnair)
+- [Achintya Manoj](https://github.com/PrisonMike123)
+- [Achintya Chaturvedi](https://github.com/AchintyaisGOAT)
