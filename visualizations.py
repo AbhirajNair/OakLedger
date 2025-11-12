@@ -6,76 +6,79 @@ import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap
 
 def create_financial_health_pie_chart(df, save_path='plots'):
-    """Create a pie chart of financial health categories."""
+    """Create a pie chart of financial health distribution."""
     os.makedirs(save_path, exist_ok=True)
     
-    # Count occurrences of each financial health category
+    # Count financial health status
     health_counts = df['financial_health'].value_counts()
     
-    # Create color map (green for good, yellow for fair, red for poor)
-    colors = ['#4CAF50', '#FFC107', '#F44336']
+    # For large datasets, sample if needed
+    if len(df) > 1000:
+        df_sample = df.sample(1000, random_state=42)
+        health_counts = df_sample['financial_health'].value_counts()
     
     # Create pie chart
     plt.figure(figsize=(10, 8))
-    patches, texts, autotexts = plt.pie(
-        health_counts,
-        labels=health_counts.index,
-        colors=colors,
-        autopct='%1.1f%%',
-        startangle=90,
-        wedgeprops=dict(width=0.7, edgecolor='w'),
-        textprops={'fontsize': 12}
-    )
+    colors = ['#2ecc71', '#f39c12', '#e74c3c']
     
-    # Make the text white and bold for better visibility
-    for text in autotexts:
-        text.set_color('white')
-        text.set_fontweight('bold')
+    # Ensure we only use as many colors as we have categories
+    colors = colors[:len(health_counts)]
     
-    plt.title('Distribution of Financial Health Categories', fontsize=16, pad=20)
-    plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    plt.pie(health_counts, labels=health_counts.index, autopct='%1.1f%%', 
+            startangle=90, colors=colors, wedgeprops={'edgecolor': 'white', 'linewidth': 1},
+            textprops={'fontsize': 10})
     
-    # Save the figure
-    plt.savefig(f'{save_path}/financial_health_pie.png', bbox_inches='tight', dpi=300)
+    # Add title and save
+    plt.title('Financial Health Distribution', fontsize=16, pad=20)
+    plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
+    plt.tight_layout()
+    plt.savefig(f'{save_path}/financial_health_pie.png', dpi=300, bbox_inches='tight')
     plt.close()
 
 def create_income_savings_histograms(df, save_path='plots'):
-    """Create histograms for total_income and savings_ratio."""
+    """Create histograms for income and savings."""
     os.makedirs(save_path, exist_ok=True)
     
-    # Set up the figure and axes
+    # For large datasets, use a sample
+    plot_df = df.sample(min(1000, len(df)), random_state=42) if len(df) > 1000 else df
+    
+    # Create figure with two subplots
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
     
-    # Histogram for total_income
-    sns.histplot(
-        data=df, 
-        x='total_income', 
-        bins=20, 
-        kde=True, 
-        color='#4E79A7',
-        edgecolor='white',
-        ax=ax1
-    )
-    ax1.set_title('Distribution of Total Income', fontsize=14)
-    ax1.set_xlabel('Total Income ($)')
+    # Plot income distribution with log scale for better visualization
+    sns.histplot(plot_df['total_income'], bins=30, kde=True, ax=ax1, color='#3498db')
+    ax1.set_title('Income Distribution', fontsize=14)
+    ax1.set_xlabel('Income ($)')
     ax1.set_ylabel('Count')
     
-    # Histogram for savings_ratio
-    sns.histplot(
-        data=df, 
-        x='savings_ratio', 
-        bins=20, 
-        kde=True, 
-        color='#59A14F',
-        edgecolor='white',
-        ax=ax2
-    )
-    ax2.set_title('Distribution of Savings Ratio', fontsize=14)
-    ax2.set_xlabel('Savings Ratio')
+    # Add mean and median lines
+    mean_income = df['total_income'].mean()
+    median_income = df['total_income'].median()
+    ax1.axvline(mean_income, color='r', linestyle='--', label=f'Mean: ${mean_income:,.0f}')
+    ax1.axvline(median_income, color='g', linestyle='-', label=f'Median: ${median_income:,.0f}')
+    ax1.legend()
+    
+    # Plot savings distribution
+    sns.histplot(plot_df['savings'], bins=30, kde=True, ax=ax2, color='#2ecc71')
+    ax2.set_title('Savings Distribution', fontsize=14)
+    ax2.set_xlabel('Savings ($)')
     ax2.set_ylabel('Count')
     
+    # Add mean and median lines
+    mean_savings = df['savings'].mean()
+    median_savings = df['savings'].median()
+    ax2.axvline(mean_savings, color='r', linestyle='--', label=f'Mean: ${mean_savings:,.0f}')
+    ax2.axvline(median_savings, color='g', linestyle='-', label=f'Median: ${median_savings:,.0f}')
+    ax2.legend()
+    
+    # Add sample size note if we're using a sample
+    if len(plot_df) < len(df):
+        fig.suptitle(f'Note: Showing {len(plot_df):,} random samples from {len(df):,} total records', 
+                    fontsize=10, y=0.02, color='gray')
+    
+    # Adjust layout and save
     plt.tight_layout()
-    plt.savefig(f'{save_path}/income_savings_histograms.png', dpi=300)
+    plt.savefig(f'{save_path}/income_savings_histograms.png', dpi=300, bbox_inches='tight')
     plt.close()
 
 def create_correlation_heatmap(df, save_path='plots'):
