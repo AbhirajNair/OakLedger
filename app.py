@@ -150,7 +150,12 @@ def goals():
     year = get_current_year()
     
     if request.method == 'POST':
-        # Get form data
+        # Check if this is a clear action
+        if request.form.get('action') == 'clear':
+            session.pop('goals', None)
+            return redirect(url_for('goals'))
+            
+        # Get form data for new goal
         goal_name = request.form.get('goal_name')
         target_amount = float(request.form.get('target_amount', 0))
         current_amount = float(request.form.get('current_amount', 0))
