@@ -132,7 +132,7 @@
                                                 </div>
                                                 <div class="col-4">
                                                     <p>Target: ₹{{ "%.2f"|format(goal.target_amount) }}</p>
-                                                    <p>Current: ₹{{ "%.2f"|format(goal.current_amount) }}</p>
+                                                    <p>Current: ₹{{ "%.2f"|format(goal.get('current_amount', 0)) }}</p>
                                                     <p>Progress: {{ "%.1f"|format(goal.progress.progress_percentage) }}%</p>
                                                     {% if goal.target_date %}
                                                         <p>Days Remaining: {{ goal.progress.days_remaining }}</p>
@@ -140,11 +140,11 @@
                                                 </div>
                                             </div>
                                             
-                                            {% if goal.feasibility.recommendations %}
+                                            {% if goal.get('analysis', {}).get('recommendations') %}
                                                 <div class="recommendations">
                                                     <h4>Recommendations:</h4>
                                                     <ul>
-                                                        {% for rec in goal.feasibility.recommendations %}
+                                                        {% for rec in goal.analysis.recommendations %}
                                                             <li>{{ rec }}</li>
                                                         {% endfor %}
                                                     </ul>

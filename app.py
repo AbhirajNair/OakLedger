@@ -11,6 +11,13 @@ import csv
 import io
 from functools import wraps
 from prediction_utils import make_prediction
+import warnings
+from sklearn.exceptions import DataConversionWarning
+
+# Suppress scikit-learn warnings
+warnings.filterwarnings('ignore', category=UserWarning, module='sklearn')
+warnings.filterwarnings('ignore', category=DataConversionWarning)
+warnings.filterwarnings('ignore', category=FutureWarning)
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='static')
@@ -143,33 +150,45 @@ def goals():
     year = get_current_year()
     
     if request.method == 'POST':
+        # Get form data
         goal_name = request.form.get('goal_name')
         target_amount = float(request.form.get('target_amount', 0))
+        current_amount = float(request.form.get('current_amount', 0))
         time_frame = int(request.form.get('time_frame', 12))  # in months
         
         # Get user's financial data from session or use defaults
-        monthly_income = float(session.get('budget_data', {}).get('monthly_income', 5000))
-        monthly_savings = float(session.get('budget_data', {}).get('financial_health', {}).get('metrics', {}).get('monthly_savings', 1000))
+        budget_data = session.get('budget_data', {})
+        monthly_income = float(budget_data.get('monthly_income', 5000))
+        monthly_savings = float(budget_data.get('financial_health', {}).get('metrics', {}).get('monthly_savings', 1000))
+        
+        # Calculate target date based on time frame
+        target_date = datetime.datetime.now() + datetime.timedelta(days=time_frame*30)
+        
+        # Calculate total monthly expenses from budget data
+        expenses = budget_data.get('expenses', {})
+        monthly_expenses = sum(expenses.values()) if expenses else monthly_income * 0.8  # Default to 80% of income if no expenses
         
         # Calculate goal feasibility
         goal_analysis = calculate_goal_feasibility(
-            goal_name=goal_name,
             target_amount=target_amount,
-            time_frame_months=time_frame,
+            current_savings=current_amount,
             monthly_income=monthly_income,
-            current_savings=0,  # Assuming no current savings for this goal
-            monthly_savings_rate=monthly_savings
+            monthly_expenses=monthly_expenses,
+            target_date=target_date
         )
         
         # Store goal in session
         if 'goals' not in session:
             session['goals'] = []
+            
         session['goals'].append({
             'name': goal_name,
             'target_amount': target_amount,
+            'current_amount': current_amount,  # Store the current amount
             'time_frame': time_frame,
             'analysis': goal_analysis,
-            'created_at': datetime.datetime.now().isoformat()
+            'created_at': datetime.datetime.now().isoformat(),
+            'target_date': target_date.isoformat()
         })
         
         return redirect(url_for('goals'))
@@ -179,7 +198,15 @@ def goals():
     
     # Calculate progress for each goal
     for goal in goals:
-        goal['progress'] = track_goal_progress(goal)
+        created_at = datetime.datetime.fromisoformat(goal['created_at'])
+        target_date = created_at + datetime.timedelta(days=goal['time_frame']*30) if 'time_frame' in goal else None
+        
+        goal['progress'] = track_goal_progress(
+            target_amount=goal['target_amount'],
+            current_amount=goal.get('current_amount', 0),
+            start_date=created_at,
+            target_date=target_date
+        )
     
     return render_template("goals.html", year=year, goals=goals)
 
